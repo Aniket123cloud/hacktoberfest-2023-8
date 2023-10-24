@@ -1,0 +1,88 @@
+Given a list of contacts contact[] of length n where each contact is a string which exist in a phone directory and a query string s. The task is to implement a search query for the phone directory. Run a search query for each prefix p of the query string s (i.e. from  index 1 to |s|) that prints all the distinct contacts which have the same prefix as p in lexicographical increasing order. Please refer the explanation part for better understanding.
+Note: If there is no match between query and contacts, print "0".
+
+Example 1:
+
+Input: 
+n = 3
+contact[] = {"geeikistest", "geeksforgeeks", 
+"geeksfortest"}
+s = "geeips"
+Output:
+geeikistest geeksforgeeks geeksfortest
+geeikistest geeksforgeeks geeksfortest
+geeikistest geeksforgeeks geeksfortest
+geeikistest
+0
+0
+Explaination: By running the search query on 
+contact list for "g" we get: "geeikistest", 
+"geeksforgeeks" and "geeksfortest".
+By running the search query on contact list 
+for "ge" we get: "geeikistest" "geeksforgeeks"
+and "geeksfortest".
+By running the search query on contact list 
+for "gee" we get: "geeikistest" "geeksforgeeks"
+and "geeksfortest".
+By running the search query on contact list 
+for "geei" we get: "geeikistest".
+No results found for "geeip", so print "0". 
+No results found for "geeips", so print "0".
+
+
+class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.is_end_of_word = False
+
+def insert_word(root, word):
+    node = root
+    for char in word:
+        if char not in node.children:
+            node.children[char] = TrieNode()
+        node = node.children[char]
+    node.is_end_of_word = True
+
+def search_contacts(root, query):
+    results = []
+    node = root
+
+    for char in query:
+        if char not in node.children:
+            return []
+        node = node.children[char]
+
+    def dfs(node, prefix):
+        if node.is_end_of_word:
+            results.append(prefix)
+
+        for char, child in node.children.items():
+            dfs(child, prefix + char)
+
+    dfs(node, query)
+    return results
+
+def phone_directory_search(contacts, query):
+    root = TrieNode()
+    for contact in contacts:
+        insert_word(root, contact)
+
+    results = []
+    for i in range(1, len(query) + 1):
+        prefix = query[:i]
+        matches = search_contacts(root, prefix)
+        results.append(sorted(matches))
+
+    return results
+
+# Example usage:
+n = 3
+contact = ["geeikistest", "geeksforgeeks", "geeksfortest"]
+s = "geeips"
+
+results = phone_directory_search(contact, s)
+for result_set in results:
+    if result_set:
+        print(" ".join(result_set))
+    else:
+        print("0")
